@@ -357,11 +357,12 @@ def make_image(infile, elow = 3, ehigh = 20, clobber=True, outpath=False, usrgti
     
     # Generate outfile name
     outfile = outdir+sname+f'_{elow}to{ehigh}keV.fits'
-    
-    if (os.path.exists(outfile)) & (~clobber):
-        warnings.warn('make_image: %s exists, use clobber=True to regenerate' % (outfile))
-    else:
-        os.system("rm "+outfile)
+    if (os.path.exists(outfile)):
+        if (~clobber):
+            warnings.warn('make_image: %s exists, use clobber=True to regenerate' % (outfile))
+        else:
+            os.system("rm "+outfile)
+            
     xsel_file = _make_xselect_commands(infile, outfile, elow, ehigh, usrgti=usrgti)
     os.system("xselect @"+xsel_file)
     os.system("rm -r -f "+xsel_file)

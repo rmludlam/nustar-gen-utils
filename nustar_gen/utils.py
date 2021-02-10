@@ -239,7 +239,7 @@ def straylight_area(det1im, regfile, evf):
     
 
 
-def make_straylight_arf(det1im, regfile, filt_file, mod, obs):
+def make_straylight_arf(det1im, regfile, filt_file, mod, obs, caldb_detabs=False):
     '''
     Produces an ARF for a given observation. Currently uses counts-weighting to
         determine the contribution of the detabs parameters for each detector.
@@ -315,11 +315,18 @@ def make_straylight_arf(det1im, regfile, filt_file, mod, obs):
     arf['SPECRESP'] = [area.value for x in arf['SPECRESP']]
 
 
-    caldb = os.environ['CALDB']
-    detabs_files = glob.glob(caldb+f'/**/nu{mod}detabs*', recursive=True)
-    use = len(detabs_files)-1
-
-    detabs_hdu = fits.open(detabs_files[use])
+    if caldb_detabs:
+       caldb = os.environ['CALDB']
+       detabs_files = glob.glob(caldb+f'/**/nu{mod}detabs*', recursive=True)
+       use = len(detabs_files)-1
+       print(f'Using CALDB DETABS: {detabs_files[use]}')
+       detabs_hdu = fits.open(detabs_files[use])
+    else:
+        # Hacky workaround to just find the tempalte directory:
+        curdir = os.path.dirname(__file__)
+        tempdir = os.path.join(curdir, 'templates')
+        detabs_file = os.path.join(tempdir, f'nu{mod}detabs20100101v015.fits')
+        detabs_hdu = fits.open(detabs_file)
 
     for detind, isc in enumerate(scale):
         detabs = detabs_hdu[detind+1].data
