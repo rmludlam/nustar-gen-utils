@@ -356,12 +356,13 @@ def make_image(infile, elow = 3, ehigh = 20, clobber=True, outpath=False, usrgti
 
     
     # Generate outfile name
-    outfile = outdir + '/'+sname+f'_{elow}to{ehigh}keV.fits'
-    
-    if (os.path.exists(outfile)) & (~clobber):
-        warnings.warn('make_image: %s exists, use clobber=True to regenerate' % (outfile))
-    else:
-        os.system("rm "+outfile)
+    outfile = outdir+sname+f'_{elow}to{ehigh}keV.fits'
+    if (os.path.exists(outfile)):
+        if (~clobber):
+            warnings.warn('make_image: %s exists, use clobber=True to regenerate' % (outfile))
+        else:
+            os.system("rm "+outfile)
+            
     xsel_file = _make_xselect_commands(infile, outfile, elow, ehigh, usrgti=usrgti)
     os.system("xselect @"+xsel_file)
     os.system("rm -r -f "+xsel_file)
@@ -642,8 +643,10 @@ def _make_xselect_commands(infile, outfile, elow, ehigh, usrgti=False):
     xsel=open("xsel.xco","w")
     xsel.write("session1\n")
     xsel.write("read events \n")
-    xsel.write('./ \n ' )
-    xsel.write('%s \n ' % infile)
+    evdir=os.path.dirname(infile)
+    xsel.write(f'{evdir} \n ' )
+    evfile = os.path.basename(infile)
+    xsel.write(f'{evfile} \n ')
     xsel.write('yes \n')
     pi_low = energy_to_chan(elow)
     pi_high = energy_to_chan(ehigh)

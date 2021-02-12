@@ -118,10 +118,6 @@ def find_source(filename, show_image=False, filt_range =10, gauss_sig=3):
         ax2 = fig.add_subplot(132)
         ax3 = fig.add_subplot(133)
 
-
-
-
-
         ax.imshow(im, origin='lower', cmap=plt.cm.viridis)
         ax.set_title('Raw Image')
 
